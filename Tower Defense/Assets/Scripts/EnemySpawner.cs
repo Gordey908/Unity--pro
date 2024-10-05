@@ -11,7 +11,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField]
     private float timeBetweenSpawnWave = 1;
 
-    private uint waveNumber = 1;
+    private int waveNumber = 1;
     private void Start()
     {
         //InvokeRepeating("SpawnEnemy", 0f, 0.000001f);
@@ -20,6 +20,7 @@ public class EnemySpawner : MonoBehaviour
 
     private IEnumerator SpawnWave()
     {
+        Debug.Log(waveNumber);
         yield return new WaitForSeconds(countdown);
         for (int i = 0; i < waveNumber; i++)
         {

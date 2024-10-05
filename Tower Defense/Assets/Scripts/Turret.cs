@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Turret : MonoBehaviour
@@ -7,6 +8,14 @@ public class Turret : MonoBehaviour
     private Transform target;
     [SerializeField]
     private float range = 1f;
+
+    [Header("Bullet settings")]
+    [SerializeField] GameObject bulletPrefab;
+    [SerializeField] 
+    private Transform[] gunBarrel;
+    [SerializeField]
+    private float rechargeTime;
+
 
     private List<Transform> targestInRange = new List<Transform>();
 
@@ -27,26 +36,42 @@ public class Turret : MonoBehaviour
             transform.LookAt(target);
         }
     }
-    private void FindTarget()
+    private Transform FindTarget()
     {
-        if (targestInRange == null) return;
-        float distance = 0;
+        if (targestInRange == null) return null;
+        Transform newTarget = targestInRange.First();
 
+        RemoveNullObjects();
         foreach (Transform t in targestInRange)
         {
-            float distanceToEnemy = Vector3.Distance(transform.position, t.position);
-            if (distanceToEnemy < range)
+            if(t == null)
             {
-                distance = distanceToEnemy;
-                target = t;
+                targestInRange.Remove(t);
+                continue;
+            }
+            float distanceToEnemy = Vector3.Distance(transform.position, t.position);
+            float distanceToPrevEnemy = Vector3.Distance(transform.position, newTarget.position);
+            if (distanceToEnemy < distanceToPrevEnemy)
+            {
+                newTarget = t;
             }
         }
-
-        if(distance > range)
+        return newTarget;
+    }
+    private void RemoveNullObjects()
+    {
+        var nullObjects = new List<Transform>();
+        foreach(Transform t in targestInRange)
         {
-            target = null;
-            return;
-        }
+            if(t == null)
+            {
+                nullObjects.Add(t);
+            }
+        }   
+        foreach(Transform t in nullObjects)
+        {
+            targestInRange.Remove(t);
+        }    
     }
     private void OnTriggerEnter(Collider col)
     {
@@ -67,7 +92,7 @@ public class Turret : MonoBehaviour
     {
         if(col.tag == "Enemy")
         {
-            FindTarget();
+            target = FindTarget();
         }
     }
 }

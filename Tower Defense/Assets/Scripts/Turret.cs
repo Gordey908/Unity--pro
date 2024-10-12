@@ -9,15 +9,17 @@ public class Turret : MonoBehaviour
     [SerializeField]
     private float range = 1f;
 
-    [Header("Bullet settings")]
+    [Header("Turret settings")]
     [SerializeField] GameObject bulletPrefab;
-    [SerializeField] 
+    [SerializeField]
     private Transform[] gunBarrel;
     [SerializeField]
     private float rechargeTime;
+    private int currentBurrelIndex = 0;
 
+    private List<Transform> targetsInRange = new List<Transform>();
 
-    private List<Transform> targestInRange = new List<Transform>();
+    private bool isShooting = false;  // Флаг, чтобы избежать многократного запуска корутины
 
     private void OnDrawGizmosSelected()
     {
@@ -27,26 +29,35 @@ public class Turret : MonoBehaviour
 
     private void Start()
     {
-        //InvokeRepeating("FindTarget", 0f, 0.3f);
+
     }
+
     private void Update()
     {
-        if(targestInRange != null)
+        if (targetsInRange != null && targetsInRange.Count > 0)
         {
-            transform.LookAt(target);
+            target = FindTarget();  // Найти ближайшую цель
+            if (target != null && !isShooting)
+            {
+                transform.LookAt(target);
+                StartCoroutine(Shoot());  // Начать стрельбу, если есть цель и не стреляем
+            }
         }
     }
+
     private Transform FindTarget()
     {
-        if (targestInRange == null) return null;
-        Transform newTarget = targestInRange.First();
+        if (targetsInRange == null || targetsInRange.Count == 0) return null;
 
         RemoveNullObjects();
-        foreach (Transform t in targestInRange)
+
+        Transform newTarget = targetsInRange.FirstOrDefault();
+
+        foreach (Transform t in targetsInRange)
         {
-            if(t == null)
+            if (t == null)
             {
-                targestInRange.Remove(t);
+                targetsInRange.Remove(t);
                 continue;
             }
             float distanceToEnemy = Vector3.Distance(transform.position, t.position);
@@ -58,39 +69,50 @@ public class Turret : MonoBehaviour
         }
         return newTarget;
     }
+
     private void RemoveNullObjects()
     {
-        var nullObjects = new List<Transform>();
-        foreach(Transform t in targestInRange)
-        {
-            if(t == null)
-            {
-                nullObjects.Add(t);
-            }
-        }   
-        foreach(Transform t in nullObjects)
-        {
-            targestInRange.Remove(t);
-        }    
+        targetsInRange.RemoveAll(t => t == null);
     }
-    private void OnTriggerEnter(Collider col)
+
+    private IEnumerator Shoot()
     {
-        if(col.tag == "Enemy")
+        while (target != null)
         {
-            targestInRange.Add(col.transform);
+            yield return new WaitForSeconds(rechargeTime);
+
+            GameObject bullet = Instantiate(bulletPrefab, gunBarrel[currentBurrelIndex].position, gunBarrel[currentBurrelIndex].rotation);
+            bullet.transform.parent = null;
+
+            BulletScript bulletScript = bullet.GetComponent<BulletScript>();
+            bulletScript.SetTarger(target);
+            currentBurrelIndex++;
+            if (currentBurrelIndex == gunBarrel.Length)
+            {
+                currentBurrelIndex = 0;
+            }
         }
     }
+
+    private void OnTriggerEnter(Collider col)
+    {
+        if (col.CompareTag("Enemy"))
+        {
+            targetsInRange.Add(col.transform);
+        }
+    }
+
     private void OnTriggerExit(Collider col)
     {
-        if (col.tag == "Enemy")
+        if (col.CompareTag("Enemy"))
         {
-            targestInRange.Remove(col.transform);
+            targetsInRange.Remove(col.transform);
         }
     }
 
     private void OnTriggerStay(Collider col)
     {
-        if(col.tag == "Enemy")
+        if (col.CompareTag("Enemy"))
         {
             target = FindTarget();
         }

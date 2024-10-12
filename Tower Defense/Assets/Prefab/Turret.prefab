@@ -260,6 +260,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   range: 3
+  bulletPrefab: {fileID: 5136289065098454567, guid: 6f9a156cd6e5f0e47925b4e659fb26f1, type: 3}
+  gunBarrel:
+  - {fileID: 5967578070896742466}
+  - {fileID: 4169045225865143145}
+  rechargeTime: 2
 --- !u!135 &8780756174983777414
 SphereCollider:
   m_ObjectHideFlags: 0

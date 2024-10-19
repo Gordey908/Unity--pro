@@ -7,26 +7,38 @@ public class BulletScript : MonoBehaviour
     [SerializeField]
     private Rigidbody rb;
 
-    private float speed = 2f;
+    private float speed = 10f;
+
+    private int damage = 10;
 
     private Transform target;
 
     private void Update()
     {
-        
-    }
 
-    // Update is called once per frame
+    }
     private void Awake()
     {
-        
+
     }
 
-    public void SetTarger(Transform newTarget)
+    public Transform Target
+    {
+        set
+        {
+            target = value;
+            TakeForce(target);
+            transform.LookAt(target);
+
+        }
+    }
+
+    public void SetTarget(Transform newTarget)
     {
         target = newTarget;
         TakeForce(target);
     }
+
     private void TakeForce(Transform target)
     {
         Vector3 dir = target.position - transform.position;

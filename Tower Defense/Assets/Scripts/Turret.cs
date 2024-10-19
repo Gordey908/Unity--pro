@@ -16,6 +16,7 @@ public class Turret : MonoBehaviour
     [SerializeField]
     private float rechargeTime;
     private int currentBurrelIndex = 0;
+    public float turnSpeed = 1f;
 
     private List<Transform> targetsInRange = new List<Transform>();
 
@@ -29,19 +30,19 @@ public class Turret : MonoBehaviour
 
     private void Start()
     {
-
+        StartCoroutine(Shoot());
     }
 
     private void Update()
     {
-        if (targetsInRange != null && targetsInRange.Count > 0)
+        LookAtTarget();
+    }
+    private void LookAtTarget()
+    {
+        if(target != null)
         {
-            target = FindTarget();  // Найти ближайшую цель
-            if (target != null && !isShooting)
-            {
-                transform.LookAt(target);
-                StartCoroutine(Shoot());  // Начать стрельбу, если есть цель и не стреляем
-            }
+            Quaternion look = Quaternion.LookRotation(target.position - transform.position);
+            transform.rotation = Quaternion.Lerp(transform.rotation, look, turnSpeed);
         }
     }
 
@@ -77,20 +78,21 @@ public class Turret : MonoBehaviour
 
     private IEnumerator Shoot()
     {
-        while (target != null)
+        while (true)
         {
-            yield return new WaitForSeconds(rechargeTime);
+            yield return new WaitUntil(() => target != null);
 
             GameObject bullet = Instantiate(bulletPrefab, gunBarrel[currentBurrelIndex].position, gunBarrel[currentBurrelIndex].rotation);
             bullet.transform.parent = null;
 
             BulletScript bulletScript = bullet.GetComponent<BulletScript>();
-            bulletScript.SetTarger(target);
+            bulletScript.SetTarget(target);
             currentBurrelIndex++;
             if (currentBurrelIndex == gunBarrel.Length)
             {
                 currentBurrelIndex = 0;
             }
+            yield return new WaitForSeconds(rechargeTime);
         }
     }
 

@@ -11,7 +11,7 @@ public class BuildSettings : MonoBehaviour
         if(structure == null)
         {
             Vector3 pos = new Vector3(transform.position.x, transform.position.y + high, transform.position.z);
-            var newStructure = Instantiate(structurePrefab, pos, Quaternion.identity);
+            structure = Instantiate(structurePrefab, pos, Quaternion.identity);
         }
     }
 }

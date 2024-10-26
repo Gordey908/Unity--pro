@@ -5,6 +5,8 @@ using UnityEngine;
 public class BuildManager : MonoBehaviour
 {
     [SerializeField]
+    private LayerMask layerMask;
+    [SerializeField]
     private Color hoverColor;
     [SerializeField]
     private Color defaultColor;
@@ -12,6 +14,8 @@ public class BuildManager : MonoBehaviour
     [SerializeField]
     private GameObject turretPrefab;
 
+    private bool canBuild;
+    private int turretIndex, Count;
 
     private GameObject selectedNode;
 
@@ -23,14 +27,20 @@ public class BuildManager : MonoBehaviour
         {
             if (hit.collider.tag == "Node")
             {
-                selectedNode = hit.collider.gameObject;
-                selectedNode.GetComponent<MeshRenderer>().material.color = hoverColor;
+                var node = hit.collider.GetComponent<BuildSettings>();
+                if(node.structure == null)
+                {
+                    selectedNode = hit.collider.gameObject;
+                    selectedNode.GetComponent<MeshRenderer>().material.color = hoverColor;
+                }
+
             }
             else 
             {
                 if(selectedNode != null)
                 {
                     selectedNode.GetComponent<MeshRenderer>().material.color = defaultColor;
+                    selectedNode = null;
                 }
 
             }

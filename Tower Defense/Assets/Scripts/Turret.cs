@@ -39,7 +39,7 @@ public class Turret : MonoBehaviour
     }
     private void LookAtTarget()
     {
-        if(target != null)
+        if (target != null)
         {
             Quaternion look = Quaternion.LookRotation(target.position - transform.position);
             transform.rotation = Quaternion.Lerp(transform.rotation, look, turnSpeed);
@@ -81,19 +81,33 @@ public class Turret : MonoBehaviour
         while (true)
         {
             yield return new WaitUntil(() => target != null);
-
-            GameObject bullet = Instantiate(bulletPrefab, gunBarrel[currentBurrelIndex].position, gunBarrel[currentBurrelIndex].rotation);
-            bullet.transform.parent = null;
-
-            BulletScript bulletScript = bullet.GetComponent<BulletScript>();
-            bulletScript.SetTarget(target);
-            currentBurrelIndex++;
-            if (currentBurrelIndex == gunBarrel.Length)
+            if (isTargetLocked())
             {
-                currentBurrelIndex = 0;
+                GameObject bullet = Instantiate(bulletPrefab, gunBarrel[currentBurrelIndex].position, gunBarrel[currentBurrelIndex].rotation);
+                bullet.transform.parent = null;
+
+                BulletScript bulletScript = bullet.GetComponent<BulletScript>();
+                bulletScript.SetTarget(target);
+
+                currentBurrelIndex++;
+                if (currentBurrelIndex == gunBarrel.Length)
+                {
+                    currentBurrelIndex = 0;
+                }
             }
+
             yield return new WaitForSeconds(rechargeTime);
         }
+    }
+
+    private bool isTargetLocked()
+    {
+        float angle = Quaternion.Angle(transform.rotation, target.rotation);
+        if (angle > 60 && angle < 120)
+        {
+            return true;
+        }
+        return false;
     }
 
     private void OnTriggerEnter(Collider col)

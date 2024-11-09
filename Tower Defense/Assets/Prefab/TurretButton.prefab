@@ -289,6 +289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f1ef10da1afad149a651332da10476b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CountText: {fileID: 8997455580643753537}
-  Count: 0
-  BuildIndex: 0
+  costText: {fileID: 8997455580643753537}
+  cost: 20
+  buildIndex: 0
+  button: {fileID: 8495036728178151798}

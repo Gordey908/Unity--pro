@@ -17,6 +17,8 @@ public class Turret : MonoBehaviour
     private float rechargeTime;
     private int currentBurrelIndex = 0;
     public float turnSpeed = 1f;
+    [SerializeField]
+    private AudioSource audioSource;
 
     private List<Transform> targetsInRange = new List<Transform>();
 
@@ -85,6 +87,9 @@ public class Turret : MonoBehaviour
             {
                 GameObject bullet = Instantiate(bulletPrefab, gunBarrel[currentBurrelIndex].position, gunBarrel[currentBurrelIndex].rotation);
                 bullet.transform.parent = null;
+
+                audioSource.pitch = Random.Range(0.9f, 1.2f);
+                audioSource.Play();
 
                 BulletScript bulletScript = bullet.GetComponent<BulletScript>();
                 bulletScript.SetTarget(target);

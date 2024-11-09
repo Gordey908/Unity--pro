@@ -10,6 +10,8 @@ public class Enemy : MonoBehaviour
     private Vector3 FinishPoint;
     [SerializeField]
     private NavMeshAgent agent;
+    [SerializeField]
+    private GameObject boomFXPrefab;
 
     private uint health;
     void Awake()
@@ -29,5 +31,11 @@ public class Enemy : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    public void GetDamage()
+    {
+        Instantiate(boomFXPrefab, transform.position, Quaternion.Euler(-90f, 0f, 0f));
+        Destroy(gameObject);
     }
 }

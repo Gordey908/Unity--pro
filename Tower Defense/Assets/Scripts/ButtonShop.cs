@@ -6,25 +6,25 @@ using UnityEngine.UI;
 public class ButtonShop : MonoBehaviour
 {
     [SerializeField]
-    private Text CountText;
+    private Text costText;
     [SerializeField]
-    private int Count;
+    private int cost;
     [SerializeField]
-    private int BuildIndex;
+    private int buildIndex;
 
 
     [SerializeField]
     private Button button;
 
-    private void Start()
+    private void Awake()
     {
-        CountText.text = Count.ToString();
-        //button.OnClock.AddListener(() => manager.SetBuildTurret(cost, BuildIndex));
+        costText.text = cost.ToString();
     }
 
-    /*private void SetBuildTurret(int.cost, int buildIndex)
+    private void Start()
     {
-
-    }*/
-
+        costText.text = cost.ToString();
+        var buildManager = BuildManager.Instance;
+        button.onClick.AddListener(() => buildManager.SetBuildTurret(cost, buildIndex));
+    }
 }

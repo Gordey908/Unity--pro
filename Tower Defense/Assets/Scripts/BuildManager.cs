@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BuildManager : MonoBehaviour
 {
+    public static BuildManager Instance;
+
     [SerializeField]
     private LayerMask layerMask;
     [SerializeField]
@@ -15,9 +18,21 @@ public class BuildManager : MonoBehaviour
     private GameObject turretPrefab;
 
     private bool canBuild;
-    private int turretIndex, Count;
+    private int turretIndex, cost;
 
     private GameObject selectedNode;
+
+    private void Awake()
+    {
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     private void Update()
     {
@@ -25,7 +40,7 @@ public class BuildManager : MonoBehaviour
 
         if(Physics.Raycast(ray, out RaycastHit hit))
         {
-            if (hit.collider.tag == "Node")
+            if (hit.collider.tag == "Node" && canBuild)
             {
                 var node = hit.collider.GetComponent<BuildSettings>();
                 if(node.structure == null)
@@ -47,7 +62,15 @@ public class BuildManager : MonoBehaviour
         }
         if(Input.GetMouseButtonDown(0))
         {
-            selectedNode.GetComponent<BuildSettings>().StartBuild(turretPrefab, 0.35f);
+            selectedNode.GetComponent<BuildSettings>().StartBuild(turretPrefab, 0.35f, cost, turretIndex);
+            canBuild = false;
         }
+    }
+
+    public void SetBuildTurret(int cost, int buildIndex)
+    {
+        canBuild = true;
+        turretIndex = buildIndex;
+        this.cost = cost;
     }
 }

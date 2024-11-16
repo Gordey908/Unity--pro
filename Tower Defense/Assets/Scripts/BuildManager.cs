@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class BuildManager : MonoBehaviour
 {
@@ -17,14 +14,14 @@ public class BuildManager : MonoBehaviour
     [SerializeField]
     private GameObject turretPrefab;
 
-    private bool canBuild;
-    private int turretIndex, cost;
-
+    private bool canBuild = false;
+    private int turretIndex;
+    private int cost;
     private GameObject selectedNode;
 
     private void Awake()
     {
-        if(Instance == null)
+        if (Instance == null)
         {
             Instance = this;
         }
@@ -38,32 +35,37 @@ public class BuildManager : MonoBehaviour
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if(Physics.Raycast(ray, out RaycastHit hit))
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask))
         {
-            if (hit.collider.tag == "Node" && canBuild)
+            if (hit.collider.CompareTag("Node") && canBuild)
             {
                 var node = hit.collider.GetComponent<BuildSettings>();
-                if(node.structure == null)
+                if (node.structure == null)
                 {
-                    selectedNode = hit.collider.gameObject;
-                    selectedNode.GetComponent<MeshRenderer>().material.color = hoverColor;
+                    if (selectedNode != hit.collider.gameObject)
+                    {
+                        ResetNodeColor();
+                        selectedNode = hit.collider.gameObject;
+                        selectedNode.GetComponent<MeshRenderer>().material.color = hoverColor;
+                    }
                 }
-
             }
-            else 
+            else
             {
-                if(selectedNode != null)
-                {
-                    selectedNode.GetComponent<MeshRenderer>().material.color = defaultColor;
-                    selectedNode = null;
-                }
-
+                ResetNodeColor();
             }
         }
-        if(Input.GetMouseButtonDown(0))
+
+        if (Input.GetMouseButtonDown(0) && selectedNode != null)
         {
-            selectedNode.GetComponent<BuildSettings>().StartBuild(turretPrefab, 0.35f, cost, turretIndex);
-            canBuild = false;
+            var nodeSettings = selectedNode.GetComponent<BuildSettings>();
+            if (nodeSettings.structure == null)
+            {
+                nodeSettings.StartBuild(turretPrefab, 0.35f, cost, turretIndex);
+                InterstitialAd.Instance.TowerWasBuild();
+                ResetNodeColor();
+                canBuild = false;
+            }
         }
     }
 
@@ -72,5 +74,14 @@ public class BuildManager : MonoBehaviour
         canBuild = true;
         turretIndex = buildIndex;
         this.cost = cost;
+    }
+
+    private void ResetNodeColor()
+    {
+        if (selectedNode != null)
+        {
+            selectedNode.GetComponent<MeshRenderer>().material.color = defaultColor;
+            selectedNode = null;
+        }
     }
 }

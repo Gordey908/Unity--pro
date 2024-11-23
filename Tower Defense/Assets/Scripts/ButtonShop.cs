@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,23 +6,50 @@ public class ButtonShop : MonoBehaviour
     [SerializeField]
     private Text costText;
     [SerializeField]
-    private int cost;
+    private Text countText;
     [SerializeField]
-    private int buildIndex;
-
-
+    private TurretData turretData;
+    [SerializeField]
+    private Image image;
     [SerializeField]
     private Button button;
 
+    private int turretCount;
+
     private void Awake()
     {
-        costText.text = cost.ToString();
+        Init();
     }
 
     private void Start()
     {
-        costText.text = cost.ToString();
         var buildManager = BuildManager.Instance;
-        button.onClick.AddListener(() => buildManager.SetBuildTurret(cost, buildIndex));
+        button.onClick.AddListener(() =>
+        {
+            if (turretCount > 0)
+            {
+                buildManager.SetBuildTurret(turretData);
+                ChangeCount();
+            }
+            else
+            {
+                Debug.Log("No turrets available to build!");
+            }
+        });
+    }
+
+    private void Init()
+    {
+        turretCount = turretData.maxCount;
+        costText.text = turretData.cost.ToString();
+        countText.text = $"{turretCount}/{turretData.maxCount}";
+        image.sprite = turretData.icon;
+    }
+
+    public void ChangeCount()
+    {
+
+        turretCount--;
+        countText.text = $"{turretCount}/{turretData.maxCount}";
     }
 }

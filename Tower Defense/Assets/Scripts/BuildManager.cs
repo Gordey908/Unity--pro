@@ -11,12 +11,7 @@ public class BuildManager : MonoBehaviour
     [SerializeField]
     private Color defaultColor;
 
-    [SerializeField]
-    private GameObject turretPrefab;
-
-    private bool canBuild = false;
-    private int turretIndex;
-    private int cost;
+    private TurretData currentTurretData;
     private GameObject selectedNode;
 
     private void Awake()
@@ -37,10 +32,10 @@ public class BuildManager : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask))
         {
-            if (hit.collider.CompareTag("Node") && canBuild)
+            if (hit.collider.CompareTag("Node"))
             {
                 var node = hit.collider.GetComponent<BuildSettings>();
-                if (node.structure == null)
+                if (node.structure == null && currentTurretData != null)
                 {
                     if (selectedNode != hit.collider.gameObject)
                     {
@@ -59,21 +54,29 @@ public class BuildManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && selectedNode != null)
         {
             var nodeSettings = selectedNode.GetComponent<BuildSettings>();
-            if (nodeSettings.structure == null)
+            if (nodeSettings.structure == null && currentTurretData != null)
             {
-                nodeSettings.StartBuild(turretPrefab, 0.35f, cost, turretIndex);
+
+                nodeSettings.StartBuild(
+                    currentTurretData.turretPrefab,
+                    0.35f,
+                    currentTurretData.cost,
+                    currentTurretData.index
+                );
+
+
                 InterstitialAd.Instance.TowerWasBuild();
+
+
                 ResetNodeColor();
-                canBuild = false;
+                currentTurretData = null;
             }
         }
     }
 
-    public void SetBuildTurret(int cost, int buildIndex)
+    public void SetBuildTurret(TurretData turretData)
     {
-        canBuild = true;
-        turretIndex = buildIndex;
-        this.cost = cost;
+        currentTurretData = turretData;
     }
 
     private void ResetNodeColor()

@@ -37,13 +37,13 @@ public class AdsInitializer : MonoBehaviour, IUnityAdsInitializationListener
         _gameId = null;
 #endif
 
-        if (!Advertisement.isInitialized && Advertisement.IsSupported())
+        if (!Advertisement.isInitialized)
         {
             Advertisement.Initialize(_gameId, _testMode, this);
         }
         else
         {
-            Debug.LogWarning("Unity Ads уже инициализированы или платформа не поддерживается.");
+            Debug.LogWarning("Unity Ads уже инициализированы.");
         }
     }
 

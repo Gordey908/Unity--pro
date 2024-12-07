@@ -14,6 +14,11 @@ public class BuildManager : MonoBehaviour
     private TurretData currentTurretData;
     private GameObject selectedNode;
 
+    private bool canBuild;
+
+    public delegate void BuildHandler();
+    public event BuildHandler onBuild;
+
     private void Awake()
     {
         if (Instance == null)
@@ -56,17 +61,14 @@ public class BuildManager : MonoBehaviour
             var nodeSettings = selectedNode.GetComponent<BuildSettings>();
             if (nodeSettings.structure == null && currentTurretData != null)
             {
-
                 nodeSettings.StartBuild(
                     currentTurretData.turretPrefab,
                     0.35f,
                     currentTurretData.cost,
-                    currentTurretData.index
-                );
-
+                    currentTurretData.index);
 
                 InterstitialAd.Instance.TowerWasBuild();
-
+                onBuild?.Invoke();
 
                 ResetNodeColor();
                 currentTurretData = null;

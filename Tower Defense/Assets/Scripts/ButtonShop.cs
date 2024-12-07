@@ -16,40 +16,33 @@ public class ButtonShop : MonoBehaviour
 
     private int turretCount;
 
-    private void Awake()
+    private void Start()
     {
         Init();
     }
 
-    private void Start()
-    {
-        var buildManager = BuildManager.Instance;
-        button.onClick.AddListener(() =>
-        {
-            if (turretCount > 0)
-            {
-                buildManager.SetBuildTurret(turretData);
-                ChangeCount();
-            }
-            else
-            {
-                Debug.Log("No turrets available to build!");
-            }
-        });
-    }
-
     private void Init()
     {
+        var buildManager = BuildManager.Instance;
         turretCount = turretData.maxCount;
+
         costText.text = turretData.cost.ToString();
         countText.text = $"{turretCount}/{turretData.maxCount}";
         image.sprite = turretData.icon;
+
+        buildManager.onBuild += ChangeCount;
+
+        button.onClick.AddListener(() => buildManager.SetBuildTurret(turretData));
     }
 
     public void ChangeCount()
     {
-
         turretCount--;
         countText.text = $"{turretCount}/{turretData.maxCount}";
+
+        if (turretCount == 0)
+        {
+            button.interactable = false;
+        }
     }
 }
